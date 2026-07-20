@@ -1,0 +1,218 @@
+iso3,name,income_group,region,cluster
+ABW,Aruba,High income,LCN,1
+AFG,Afghanistan,Low income,MEA,0
+AGO,Angola,Lower-middle income,SSF,0
+ALB,Albania,Upper-middle income,ECS,1
+AND,Andorra,High income,ECS,1
+ARE,United Arab Emirates,High income,MEA,1
+ARG,Argentina,Upper-middle income,LCN,1
+ARM,Armenia,Upper-middle income,ECS,1
+ASM,American Samoa,High income,EAS,1
+ATG,Antigua and Barbuda,High income,LCN,1
+AUS,Australia,High income,EAS,1
+AUT,Austria,High income,ECS,1
+AZE,Azerbaijan,Upper-middle income,ECS,1
+BDI,Burundi,Low income,SSF,0
+BEL,Belgium,High income,ECS,1
+BEN,Benin,Lower-middle income,SSF,0
+BFA,Burkina Faso,Low income,SSF,0
+BGD,Bangladesh,Lower-middle income,SAS,0
+BGR,Bulgaria,High income,ECS,1
+BHR,Bahrain,High income,MEA,1
+BHS,"Bahamas, The",High income,LCN,1
+BIH,Bosnia and Herzegovina,Upper-middle income,ECS,1
+BLR,Belarus,Upper-middle income,ECS,1
+BLZ,Belize,Upper-middle income,LCN,1
+BMU,Bermuda,High income,NAC,1
+BOL,Bolivia,Lower-middle income,LCN,0
+BRA,Brazil,Upper-middle income,LCN,1
+BRB,Barbados,High income,LCN,1
+BRN,Brunei Darussalam,High income,EAS,1
+BTN,Bhutan,Lower-middle income,SAS,0
+BWA,Botswana,Upper-middle income,SSF,0
+CAF,Central African Republic,Low income,SSF,0
+CAN,Canada,High income,NAC,1
+CHE,Switzerland,High income,ECS,1
+CHI,Channel Islands,High income,ECS,1
+CHL,Chile,High income,LCN,1
+CHN,China,Upper-middle income,EAS,1
+CIV,Cote d'Ivoire,Lower-middle income,SSF,0
+CMR,Cameroon,Lower-middle income,SSF,0
+COD,"Congo, Dem. Rep.",Low income,SSF,0
+COG,"Congo, Rep.",Lower-middle income,SSF,0
+COL,Colombia,Upper-middle income,LCN,1
+COM,Comoros,Lower-middle income,SSF,0
+CPV,Cabo Verde,Upper-middle income,SSF,1
+CRI,Costa Rica,High income,LCN,1
+CUB,Cuba,Upper-middle income,LCN,1
+CUW,Curacao,High income,LCN,1
+CYM,Cayman Islands,High income,LCN,1
+CYP,Cyprus,High income,ECS,1
+CZE,Czechia,High income,ECS,1
+DEU,Germany,High income,ECS,1
+DJI,Djibouti,Lower-middle income,MEA,0
+DMA,Dominica,Upper-middle income,LCN,1
+DNK,Denmark,High income,ECS,1
+DOM,Dominican Republic,Upper-middle income,LCN,1
+DZA,Algeria,Upper-middle income,MEA,1
+ECU,Ecuador,Upper-middle income,LCN,1
+EGY,"Egypt, Arab Rep.",Lower-middle income,MEA,1
+ERI,Eritrea,Low income,SSF,0
+ESP,Spain,High income,ECS,1
+EST,Estonia,High income,ECS,1
+ETH,Ethiopia,Low income,SSF,0
+FIN,Finland,High income,ECS,1
+FJI,Fiji,Upper-middle income,EAS,1
+FRA,France,High income,ECS,1
+FRO,Faroe Islands,High income,ECS,1
+FSM,"Micronesia, Fed. Sts.",Upper-middle income,EAS,0
+GAB,Gabon,Upper-middle income,SSF,0
+GBR,United Kingdom,High income,ECS,1
+GEO,Georgia,Upper-middle income,ECS,1
+GHA,Ghana,Lower-middle income,SSF,0
+GIB,Gibraltar,High income,ECS,1
+GIN,Guinea,Lower-middle income,SSF,0
+GMB,"Gambia, The",Low income,SSF,0
+GNB,Guinea-Bissau,Low income,SSF,0
+GNQ,Equatorial Guinea,Upper-middle income,SSF,0
+GRC,Greece,High income,ECS,1
+GRD,Grenada,Upper-middle income,LCN,1
+GRL,Greenland,High income,ECS,1
+GTM,Guatemala,Upper-middle income,LCN,1
+GUM,Guam,High income,EAS,1
+GUY,Guyana,High income,LCN,1
+HKG,"Hong Kong SAR, China",High income,EAS,1
+HND,Honduras,Lower-middle income,LCN,1
+HRV,Croatia,High income,ECS,1
+HTI,Haiti,Lower-middle income,LCN,0
+HUN,Hungary,High income,ECS,1
+IDN,Indonesia,Upper-middle income,EAS,1
+IMN,Isle of Man,High income,ECS,1
+IND,India,Lower-middle income,SAS,0
+IRL,Ireland,High income,ECS,1
+IRN,"Iran, Islamic Rep.",Upper-middle income,MEA,1
+IRQ,Iraq,Upper-middle income,MEA,0
+ISL,Iceland,High income,ECS,1
+ISR,Israel,High income,MEA,1
+ITA,Italy,High income,ECS,1
+JAM,Jamaica,Upper-middle income,LCN,1
+JOR,Jordan,Upper-middle income,MEA,1
+JPN,Japan,High income,EAS,1
+KAZ,Kazakhstan,Upper-middle income,ECS,1
+KEN,Kenya,Lower-middle income,SSF,0
+KGZ,Kyrgyz Republic,Lower-middle income,ECS,1
+KHM,Cambodia,Lower-middle income,EAS,0
+KIR,Kiribati,Lower-middle income,EAS,0
+KNA,St. Kitts and Nevis,High income,LCN,1
+KOR,"Korea, Rep.",High income,EAS,1
+KWT,Kuwait,High income,MEA,1
+LAO,Lao PDR,Lower-middle income,EAS,0
+LBN,Lebanon,Lower-middle income,MEA,1
+LBR,Liberia,Low income,SSF,0
+LBY,Libya,Upper-middle income,MEA,1
+LCA,St. Lucia,Upper-middle income,LCN,1
+LIE,Liechtenstein,High income,ECS,1
+LKA,Sri Lanka,Upper-middle income,SAS,1
+LSO,Lesotho,Lower-middle income,SSF,0
+LTU,Lithuania,High income,ECS,1
+LUX,Luxembourg,High income,ECS,1
+LVA,Latvia,High income,ECS,1
+MAC,"Macao SAR, China",High income,EAS,1
+MAF,St. Martin (French part),High income,LCN,1
+MAR,Morocco,Lower-middle income,MEA,1
+MCO,Monaco,High income,ECS,1
+MDA,Moldova,Upper-middle income,ECS,1
+MDG,Madagascar,Low income,SSF,0
+MDV,Maldives,Upper-middle income,SAS,1
+MEX,Mexico,Upper-middle income,LCN,1
+MHL,Marshall Islands,Upper-middle income,EAS,1
+MKD,North Macedonia,Upper-middle income,ECS,1
+MLI,Mali,Low income,SSF,0
+MLT,Malta,High income,MEA,1
+MMR,Myanmar,Lower-middle income,EAS,0
+MNE,Montenegro,Upper-middle income,ECS,1
+MNG,Mongolia,Upper-middle income,EAS,1
+MNP,Northern Mariana Islands,High income,EAS,1
+MOZ,Mozambique,Low income,SSF,0
+MRT,Mauritania,Lower-middle income,SSF,0
+MUS,Mauritius,Upper-middle income,SSF,1
+MWI,Malawi,Low income,SSF,0
+MYS,Malaysia,Upper-middle income,EAS,1
+NAM,Namibia,Lower-middle income,SSF,0
+NCL,New Caledonia,High income,EAS,1
+NER,Niger,Low income,SSF,0
+NGA,Nigeria,Lower-middle income,SSF,0
+NIC,Nicaragua,Lower-middle income,LCN,1
+NLD,Netherlands,High income,ECS,1
+NOR,Norway,High income,ECS,1
+NPL,Nepal,Lower-middle income,SAS,0
+NRU,Naoero,High income,EAS,1
+NZL,New Zealand,High income,EAS,1
+OMN,Oman,High income,MEA,1
+PAK,Pakistan,Lower-middle income,MEA,0
+PAN,Panama,High income,LCN,1
+PER,Peru,Upper-middle income,LCN,1
+PHL,Philippines,Upper-middle income,EAS,1
+PLW,Palau,High income,EAS,1
+PNG,Papua New Guinea,Lower-middle income,EAS,0
+POL,Poland,High income,ECS,1
+PRI,Puerto Rico (US),High income,LCN,1
+PRK,"Korea, Dem. People's Rep.",Low income,EAS,1
+PRT,Portugal,High income,ECS,1
+PRY,Paraguay,Upper-middle income,LCN,1
+PSE,West Bank and Gaza,Lower-middle income,MEA,1
+PYF,French Polynesia,High income,EAS,1
+QAT,Qatar,High income,MEA,1
+ROU,Romania,High income,ECS,1
+RUS,Russian Federation,High income,ECS,1
+RWA,Rwanda,Low income,SSF,0
+SAU,Saudi Arabia,High income,MEA,1
+SDN,Sudan,Low income,SSF,0
+SEN,Senegal,Lower-middle income,SSF,0
+SGP,Singapore,High income,EAS,1
+SLB,Solomon Islands,Lower-middle income,EAS,0
+SLE,Sierra Leone,Low income,SSF,0
+SLV,El Salvador,Upper-middle income,LCN,1
+SMR,San Marino,High income,ECS,1
+SOM,"Somalia, Fed. Rep.",Low income,SSF,0
+SRB,Serbia,Upper-middle income,ECS,1
+SSD,South Sudan,Low income,SSF,0
+STP,Sao Tome and Principe,Lower-middle income,SSF,0
+SUR,Suriname,Upper-middle income,LCN,1
+SVK,Slovak Republic,High income,ECS,1
+SVN,Slovenia,High income,ECS,1
+SWE,Sweden,High income,ECS,1
+SWZ,Eswatini,Lower-middle income,SSF,0
+SXM,Sint Maarten (Dutch part),High income,LCN,1
+SYC,Seychelles,High income,SSF,1
+SYR,Syrian Arab Republic,Low income,MEA,1
+TCA,Turks and Caicos Islands,High income,LCN,1
+TCD,Chad,Low income,SSF,0
+TGO,Togo,Lower-middle income,SSF,0
+THA,Thailand,Upper-middle income,EAS,1
+TJK,Tajikistan,Lower-middle income,ECS,1
+TKM,Turkmenistan,Upper-middle income,ECS,1
+TLS,Timor-Leste,Lower-middle income,EAS,0
+TON,Tonga,Upper-middle income,EAS,1
+TTO,Trinidad and Tobago,High income,LCN,1
+TUN,Tunisia,Lower-middle income,MEA,1
+TUR,Turkiye,Upper-middle income,ECS,1
+TUV,Tuvalu,Upper-middle income,EAS,1
+TZA,Tanzania,Lower-middle income,SSF,0
+UGA,Uganda,Low income,SSF,0
+UKR,Ukraine,Upper-middle income,ECS,1
+URY,Uruguay,High income,LCN,1
+USA,United States,High income,NAC,1
+UZB,Uzbekistan,Lower-middle income,ECS,1
+VCT,St. Vincent and the Grenadines,Upper-middle income,LCN,1
+VEN,"Venezuela, RB",Lower-middle income,LCN,1
+VGB,British Virgin Islands,High income,LCN,1
+VIR,Virgin Islands (U.S.),High income,LCN,1
+VNM,Viet Nam,Upper-middle income,EAS,1
+VUT,Vanuatu,Lower-middle income,EAS,1
+WSM,Samoa,Upper-middle income,EAS,1
+XKX,Kosovo,Upper-middle income,ECS,1
+YEM,"Yemen, Rep.",Low income,MEA,0
+ZAF,South Africa,Upper-middle income,SSF,0
+ZMB,Zambia,Lower-middle income,SSF,0
+ZWE,Zimbabwe,Lower-middle income,SSF,0

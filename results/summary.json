@@ -1,0 +1,255 @@
+{
+  "n_rows": 3472,
+  "n_countries": 217,
+  "years": [
+    2005,
+    2020
+  ],
+  "prediction": {
+    "life_expectancy": {
+      "best_model": "XGBoost",
+      "model_comparison": {
+        "RMSE": {
+          "Persistence (y_t)": 1.5852,
+          "Linear": 2.9836,
+          "Ridge": 2.9697,
+          "Lasso": 3.0013,
+          "Random Forest": 2.6703,
+          "XGBoost": 2.6421
+        },
+        "MAE": {
+          "Persistence (y_t)": 1.1905,
+          "Linear": 2.2291,
+          "Ridge": 2.2194,
+          "Lasso": 2.2345,
+          "Random Forest": 1.9527,
+          "XGBoost": 1.9152
+        },
+        "R2": {
+          "Persistence (y_t)": 0.9616,
+          "Linear": 0.8644,
+          "Ridge": 0.8657,
+          "Lasso": 0.8628,
+          "Random Forest": 0.8914,
+          "XGBoost": 0.8937
+        }
+      },
+      "feature_sets": {
+        "n_features": {
+          "Economic only": 4,
+          "Full (econ + health + social)": 20
+        },
+        "Level RMSE": {
+          "Economic only": 4.5058,
+          "Full (econ + health + social)": 2.35
+        },
+        "Level R2": {
+          "Economic only": 0.7166,
+          "Full (econ + health + social)": 0.9229
+        },
+        "Gain RMSE": {
+          "Economic only": 1.3604,
+          "Full (econ + health + social)": 1.1822
+        },
+        "Gain R2": {
+          "Economic only": -0.1015,
+          "Full (econ + health + social)": 0.1681
+        }
+      },
+      "feature_sets_n_rows": 1935,
+      "feature_sets_n_countries": 162,
+      "temporal": {
+        "RMSE": {
+          "Persistence (y_t)": 1.3667,
+          "Linear": 2.7722,
+          "Ridge": 2.7647,
+          "Lasso": 2.7994,
+          "Random Forest": 1.6886,
+          "XGBoost": 1.6746
+        },
+        "MAE": {
+          "Persistence (y_t)": 0.9757,
+          "Linear": 1.9997,
+          "Ridge": 1.9985,
+          "Lasso": 2.0201,
+          "Random Forest": 1.1765,
+          "XGBoost": 1.1637
+        },
+        "R2": {
+          "Persistence (y_t)": 0.9676,
+          "Linear": 0.8675,
+          "Ridge": 0.8682,
+          "Lasso": 0.8649,
+          "Random Forest": 0.9508,
+          "XGBoost": 0.9517
+        }
+      },
+      "autoregressive": {
+        "RMSE": 1.1107,
+        "MAE": 0.7381,
+        "R2": 0.9812
+      },
+      "top_features": [
+        "under5_mortality",
+        "infant_mortality",
+        "sanitation_access",
+        "fertility_rate",
+        "whr_log_gdp_pc",
+        "health_exp_pc",
+        "gdp_pc_ppp",
+        "physicians_per_1000",
+        "water_access",
+        "gini_index"
+      ]
+    },
+    "life_ladder": {
+      "best_model": "XGBoost",
+      "model_comparison": {
+        "RMSE": {
+          "Persistence (y_t)": 0.5248,
+          "Linear": 0.6285,
+          "Ridge": 0.6242,
+          "Lasso": 0.6259,
+          "Random Forest": 0.5961,
+          "XGBoost": 0.5925
+        },
+        "MAE": {
+          "Persistence (y_t)": 0.396,
+          "Linear": 0.4933,
+          "Ridge": 0.4907,
+          "Lasso": 0.4936,
+          "Random Forest": 0.4611,
+          "XGBoost": 0.4583
+        },
+        "R2": {
+          "Persistence (y_t)": 0.7753,
+          "Linear": 0.6821,
+          "Ridge": 0.6864,
+          "Lasso": 0.6847,
+          "Random Forest": 0.714,
+          "XGBoost": 0.7175
+        }
+      },
+      "feature_sets": {
+        "n_features": {
+          "Economic only": 4,
+          "Full (econ + health + social)": 18
+        },
+        "Level RMSE": {
+          "Economic only": 0.706,
+          "Full (econ + health + social)": 0.5925
+        },
+        "Level R2": {
+          "Economic only": 0.5989,
+          "Full (econ + health + social)": 0.7175
+        },
+        "Gain RMSE": {
+          "Economic only": 0.5714,
+          "Full (econ + health + social)": 0.5386
+        },
+        "Gain R2": {
+          "Economic only": -0.1908,
+          "Full (econ + health + social)": -0.0579
+        }
+      },
+      "feature_sets_n_rows": 1258,
+      "feature_sets_n_countries": 159,
+      "temporal": {
+        "RMSE": {
+          "Persistence (y_t)": 0.5783,
+          "Linear": 0.6023,
+          "Ridge": 0.6,
+          "Lasso": 0.5958,
+          "Random Forest": 0.5366,
+          "XGBoost": 0.533
+        },
+        "MAE": {
+          "Persistence (y_t)": 0.4365,
+          "Linear": 0.4641,
+          "Ridge": 0.4628,
+          "Lasso": 0.4685,
+          "Random Forest": 0.4139,
+          "XGBoost": 0.4103
+        },
+        "R2": {
+          "Persistence (y_t)": 0.7086,
+          "Linear": 0.696,
+          "Ridge": 0.6982,
+          "Lasso": 0.7025,
+          "Random Forest": 0.7586,
+          "XGBoost": 0.7619
+        }
+      },
+      "autoregressive": {
+        "RMSE": 0.4974,
+        "MAE": 0.3847,
+        "R2": 0.7981
+      },
+      "top_features": [
+        "social_support",
+        "whr_log_gdp_pc",
+        "under5_mortality",
+        "generosity",
+        "health_exp_pc",
+        "gdp_pc_ppp",
+        "infant_mortality",
+        "freedom",
+        "urban_pop_pct",
+        "gini_index"
+      ]
+    }
+  },
+  "clustering": {
+    "k": 2,
+    "silhouette": 0.3121,
+    "stability_ari_mean": 0.9579,
+    "stability_ari_std": 0.0481,
+    "ari_kmeans_vs_ward": 0.8158,
+    "pca_explained": [
+      0.3132,
+      0.0941
+    ],
+    "crosstab": {
+      "High income": {
+        "0": 0,
+        "1": 86
+      },
+      "Low income": {
+        "0": 23,
+        "1": 2
+      },
+      "Lower-middle income": {
+        "0": 35,
+        "1": 12
+      },
+      "Upper-middle income": {
+        "0": 6,
+        "1": 53
+      }
+    },
+    "n_countries": 217,
+    "k3_crosstab": {
+      "High income": {
+        "0": 0,
+        "1": 0,
+        "2": 86
+      },
+      "Low income": {
+        "0": 3,
+        "1": 20,
+        "2": 2
+      },
+      "Lower-middle income": {
+        "0": 0,
+        "1": 36,
+        "2": 11
+      },
+      "Upper-middle income": {
+        "0": 0,
+        "1": 9,
+        "2": 50
+      }
+    },
+    "k3_stability_ari_mean": 0.7779
+  }
+}
