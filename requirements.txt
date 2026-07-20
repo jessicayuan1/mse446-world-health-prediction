@@ -1,0 +1,20 @@
+# Core data + ML stack (versions used to produce the report)
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+scipy>=1.11
+xgboost>=2.0
+shap>=0.44
+
+# Data acquisition
+wbgapi>=1.0.12
+
+# Visualisation
+matplotlib>=3.8
+seaborn>=0.13
+
+# Notebook build/execute
+nbformat>=5.9
+nbconvert>=7.0
+ipykernel>=6.0
+jupyter-client>=8.0
