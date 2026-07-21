@@ -58,6 +58,8 @@ mse446/
   persistence baseline and a forward-in-time temporal hold-out are also reported.
 * **Data cleaning** — robust within-country median/MAD despiking removes obvious
   source errors; targets are never imputed (missing-outcome rows are dropped).
+* **Hyperparameter tuning** — every model is tuned with `GridSearchCV` under the
+  same GroupKFold; the selected settings are reported in the notebook.
 * **Hypothesis test** — economics-only vs. full (economic + health + social)
   feature sets on the same rows, for both the future *level* and the multi-year
   *gain*.

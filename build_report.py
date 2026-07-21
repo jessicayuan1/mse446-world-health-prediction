@@ -209,7 +209,11 @@ which present conditions precede *improvement*.
 
 **Prediction models.** Baseline linear regression, regularised Ridge and Lasso,
 and tree ensembles (Random Forest, XGBoost), each wrapped as
-`IterativeImputer → StandardScaler → estimator`.
+`IterativeImputer → StandardScaler → estimator`. Every model's hyperparameters
+are tuned by **`GridSearchCV` under the same GroupKFold** (regularisation
+strength for Ridge/Lasso; depth, leaf size and number of trees for the Random
+Forest; depth, learning rate and number of rounds for XGBoost), scoring on RMSE;
+the selected settings are reported below.
 
 **Evaluation — leakage control.** Our headline metric is **5-fold GroupKFold
 cross-validation grouped by country**: a country never appears in both train and
@@ -248,6 +252,18 @@ for tgt, lab in [("life_expectancy", "Life expectancy (years)"),
     display(table(f"pred_models_{tgt}.csv").style.format(disp))
 """)
 
+md(r"""
+**Hyperparameters selected by grouped-CV grid search** (with the resulting
+cross-validated RMSE at those settings):
+""")
+
+code(r"""
+for tgt, lab in [("life_expectancy", "Life expectancy"),
+                 ("life_ladder", "Life-ladder")]:
+    print(f"=== {lab}: tuned hyperparameters ===")
+    display(table(f"pred_tuning_{tgt}.csv").style.format({"CV_RMSE": "{:.3f}"}))
+""")
+
 code(r"""
 show("pred_models_life_expectancy.png", width=820)
 show("pred_scatter_life_expectancy.png", width=430)
@@ -260,8 +276,9 @@ beat over four years, and models that predict *from other conditions only* (no
 lagged outcome) trail it — XGBoost reaches R² = 0.89. This is the honest and
 important point: the interesting question is not "can we beat carry-forward" but
 "**which conditions carry information about the future**". Second, among learned
-models the **tree ensembles clearly dominate the linear family** (XGBoost RMSE
-2.64 vs. Ridge 2.97), evidence of genuine nonlinearity in the input→outcome map.
+models the **tree ensembles clearly dominate the linear family** even after
+tuning (XGBoost RMSE ≈ 2.65 vs. Ridge ≈ 2.94), evidence of genuine nonlinearity
+in the input→outcome map.
 When the current outcome *is* added as a feature, XGBoost rises to **R² = 0.981**
 (life expectancy) and **0.798** (life-ladder), exceeding persistence — so the
 indicators do add signal beyond simple carry-forward.
@@ -453,10 +470,49 @@ confirms **H2**: trajectory clusters are *not* a relabelling of income tiers.
 """)
 
 # =========================================================================== #
+# 4. Limitations
+# =========================================================================== #
+md(r"""
+## 4. Limitations
+
+We flag the main threats to validity and scope so the results are read in
+context.
+
+* **Data quality and coverage.** WDI values contain occasional source errors
+  (some of which our despiking removes, but not all) and the sparsest series —
+  the Gini index and the Gallup-sourced social variables — are missing for a
+  large share of country-years, so parts of the feature space rely on
+  imputation. A few countries (notably North Korea and Syria) have known
+  reliability issues yet still surface in the cluster analysis.
+* **Imputation caveat.** MICE is fit inside CV folds (no leakage), but the prior
+  within-country interpolation uses a country's own past *and* future values; it
+  is harmless under grouped CV (a country sits in one fold) yet mildly optimistic
+  for the temporal hold-out.
+* **Hyperparameter selection.** Grids are tuned with grouped CV and then the same
+  data is used for the out-of-fold evaluation; a fully **nested** CV would remove
+  the small optimistic bias this introduces. Search grids are modest by design.
+* **Association, not causation.** Permutation and SHAP importances identify which
+  indicators *precede* and *predict* outcomes; they are **not** causal effects.
+  Confounding (e.g. governance quality driving many indicators at once) is not
+  addressed.
+* **Correlated features.** Health, economic and social indicators are highly
+  inter-correlated, so importance is shared among proxies (e.g. under-5 vs.
+  infant mortality) and individual rankings should be read as *groups* of
+  related signals.
+* **Horizon and panel length.** With a 4-year horizon over 2005–2020 each country
+  contributes a limited number of (t → t+4) windows; the negative gain-R² for
+  happiness partly reflects this short, annual panel rather than pure
+  unpredictability.
+* **Clustering choices.** Trajectory features (level/slope/volatility) and *k* are
+  design decisions; the silhouette-optimal k = 2 is robust, but the finer k = 3
+  structure is less stable and should be treated as exploratory.
+""")
+
+# =========================================================================== #
 # 5. Conclusions
 # =========================================================================== #
 md(r"""
-## 4. Conclusions
+## 5. Conclusions
 
 **On the problem.** (1) Adding health and social information to economic inputs
 substantially improves forecasts of future well-being — roughly halving
@@ -497,7 +553,7 @@ archetypes.
 # 6. Reproducibility
 # =========================================================================== #
 md(r"""
-## 5. Code and reproducibility
+## 6. Code and reproducibility
 
 The full, commented implementation lives in `src/` and is orchestrated by
 `run_all.py`. See `README.md` for setup. In brief:
