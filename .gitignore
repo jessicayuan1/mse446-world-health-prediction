@@ -11,3 +11,6 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# PDF build temp
+_report_print.html

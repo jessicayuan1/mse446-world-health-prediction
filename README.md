@@ -24,7 +24,15 @@ python run_all.py --rebuild        # omit --rebuild to reuse data/processed/pane
 # 3. (optional) regenerate + execute the report notebook
 python build_report.py
 python -m nbconvert --to notebook --execute --inplace MSE446_Project_Report.ipynb
+
+# 4. (optional) export the clean, code-free report PDF (19 pages)
+python -m playwright install chromium   # one-time
+python make_pdf.py                       # -> MSE446_Project_Report.pdf
 ```
+
+The submittable report is **`MSE446_Project_Report.pdf`** — text, figures and
+tables only (code excluded, matching the "20 pages excluding code" rule). The
+full code lives in `src/` and the executed `.ipynb`.
 
 `run_all.py` writes every figure to `figures/` and every results table to
 `results/` (plus `results/summary.json`). The notebook loads those cached
