@@ -54,7 +54,7 @@ def make_models(random_state: int = C.RANDOM_STATE) -> dict:
     def pipe(estimator):
         return Pipeline(
             [
-                ("impute", IterativeImputer(random_state=random_state, max_iter=15,
+                ("impute", IterativeImputer(random_state=random_state, max_iter=10,
                                             sample_posterior=False)),
                 ("scale", StandardScaler()),
                 ("model", estimator),
@@ -78,6 +78,31 @@ def make_models(random_state: int = C.RANDOM_STATE) -> dict:
                 random_state=random_state, n_jobs=-1,
             )
         ),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Hyperparameter search spaces  (keys target the "model" step of each pipeline)
+# --------------------------------------------------------------------------- #
+def param_grids() -> dict:
+    """
+    Modest, sensible grids searched with GroupKFold.  Linear regression has no
+    hyperparameters, so it is left out (evaluated at its defaults).
+    """
+    return {
+        "Ridge": {"model__alpha": [0.1, 1.0, 10.0, 50.0, 100.0]},
+        "Lasso": {"model__alpha": [0.001, 0.01, 0.05, 0.1, 0.5]},
+        "Random Forest": {
+            "model__n_estimators": [400],
+            "model__max_depth": [None, 8, 16],
+            "model__min_samples_leaf": [1, 3, 5],
+        },
+        "XGBoost": {
+            "model__n_estimators": [300, 600],
+            "model__max_depth": [3, 4, 6],
+            "model__learning_rate": [0.03, 0.1],
+            "model__subsample": [0.8],
+        },
     }
 
 

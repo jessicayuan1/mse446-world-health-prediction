@@ -98,25 +98,29 @@ def run_prediction(panel_clean: pd.DataFrame, results: dict):
     results["prediction"] = {}
     for tgt, lab in C.TARGETS.items():
         print(f"\n[prediction] target = {tgt}")
-        # 1. Model comparison
-        cmp_df, data, oof = pred.experiment_model_comparison(panel_clean, tgt)
+        # 1. Model comparison (with grouped-CV hyperparameter tuning)
+        cmp_df, data, oof, tuned, params = pred.experiment_model_comparison(
+            panel_clean, tgt)
         pred.plot_model_comparison(cmp_df, lab, f"pred_models_{tgt}.png")
         cmp_df.to_csv(os.path.join(C.RESULTS_DIR, f"pred_models_{tgt}.csv"))
+        params.assign(best_params=params["best_params"].astype(str)).to_csv(
+            os.path.join(C.RESULTS_DIR, f"pred_tuning_{tgt}.csv"))
 
         # best model by R2 (excluding baseline)
         best = cmp_df.drop(index="Persistence (y_t)")["R2"].idxmax()
+        best_est = tuned[best]
 
         # pred-vs-actual for best model
         pred.plot_pred_vs_actual(data["y"], oof[best], lab,
                                  f"pred_scatter_{tgt}.png")
 
-        # 2. Feature-set hypothesis test
-        fs_df = pred.experiment_feature_sets(panel_clean, tgt, model_key=best)
+        # 2. Feature-set hypothesis test (reuse tuned best estimator)
+        fs_df = pred.experiment_feature_sets(panel_clean, tgt, best_est)
         pred.plot_feature_sets(fs_df, lab, f"pred_featuresets_{tgt}.png")
         fs_df.to_csv(os.path.join(C.RESULTS_DIR, f"pred_featuresets_{tgt}.csv"))
 
         # 3. Importance + SHAP
-        imp = pred.experiment_importance(panel_clean, tgt, model_key=best)
+        imp = pred.experiment_importance(panel_clean, tgt, best_est)
         pred.plot_permutation(imp["importance"], lab, f"pred_perm_{tgt}.png")
         imp["importance"].to_csv(
             os.path.join(C.RESULTS_DIR, f"pred_perm_{tgt}.csv"), index=False)
@@ -124,16 +128,19 @@ def run_prediction(panel_clean: pd.DataFrame, results: dict):
             pred.plot_shap(imp["shap_values"], imp["X_proc"], lab,
                            f"pred_shap_{tgt}.png")
 
-        # 4. Temporal generalisation
-        temp_df = pred.experiment_temporal(panel_clean, tgt)
+        # 4. Temporal generalisation (tuned models)
+        temp_df = pred.experiment_temporal(panel_clean, tgt, models=tuned)
         temp_df.to_csv(os.path.join(C.RESULTS_DIR, f"pred_temporal_{tgt}.csv"))
 
         # 5. Autoregressive check (adding current outcome should beat persistence)
-        ar = pred.experiment_autoregressive(panel_clean, tgt, model_key=best)
+        ar = pred.experiment_autoregressive(panel_clean, tgt, best_est)
 
         results["prediction"][tgt] = {
             "best_model": best,
             "model_comparison": cmp_df.round(4).to_dict(),
+            "tuning": {m: {"CV_RMSE": round(params.loc[m, "CV_RMSE"], 4),
+                           "best_params": params.loc[m, "best_params"]}
+                       for m in params.index},
             "feature_sets": fs_df.round(4).to_dict(),
             "feature_sets_n_rows": fs_df.attrs.get("n_rows"),
             "feature_sets_n_countries": fs_df.attrs.get("n_countries"),
@@ -145,6 +152,8 @@ def run_prediction(panel_clean: pd.DataFrame, results: dict):
               f"R2={ar['R2']:.3f}, RMSE={ar['RMSE']:.3f}")
         print(f"   best model: {best}")
         print(cmp_df.round(3).to_string())
+        print("   tuned hyperparameters:")
+        print(params.to_string())
         print(fs_df.round(3).to_string())
 
 

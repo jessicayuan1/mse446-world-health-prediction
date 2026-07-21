@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import GroupKFold, cross_val_predict
+from sklearn.base import clone
+from sklearn.model_selection import (GroupKFold, cross_val_predict,
+                                     cross_val_score, GridSearchCV)
 from sklearn.inspection import permutation_importance
 
 try:
@@ -44,11 +46,53 @@ def _oof_predict(model, X, y, groups, n_splits=5):
 
 
 # --------------------------------------------------------------------------- #
+# Hyperparameter tuning (GridSearchCV with GroupKFold)
+# --------------------------------------------------------------------------- #
+def tune_models(X, y, groups, n_splits=5):
+    """
+    Tune each model's hyperparameters with GridSearchCV under GroupKFold, so the
+    search itself never splits a country across train/validation.  Returns:
+        tuned  : {name -> best_estimator_ pipeline (tuned hyperparameters)}
+        params : DataFrame of chosen params + best grouped-CV RMSE per model
+    Scoring is negative RMSE; the reported CV_RMSE is the grouped cross-validated
+    error at the selected settings.
+    """
+    cv = GroupKFold(n_splits=n_splits)
+    grids = U.param_grids()
+    tuned, rows = {}, []
+    for name, model in U.make_models().items():
+        grid = grids.get(name)
+        if grid:
+            gs = GridSearchCV(model, grid, cv=cv,
+                              scoring="neg_root_mean_squared_error", n_jobs=-1)
+            gs.fit(X, y, groups=groups)
+            tuned[name] = gs.best_estimator_
+            best = {k.replace("model__", ""): v for k, v in gs.best_params_.items()}
+            rows.append({"Model": name, "CV_RMSE": -gs.best_score_,
+                         "best_params": best})
+        else:  # Linear regression: no hyperparameters to tune
+            sc = -cross_val_score(model, X, y, groups=groups, cv=cv,
+                                  scoring="neg_root_mean_squared_error").mean()
+            tuned[name] = clone(model)
+            rows.append({"Model": name, "CV_RMSE": sc, "best_params": {}})
+    params = pd.DataFrame(rows).set_index("Model")
+    return tuned, params
+
+
+# --------------------------------------------------------------------------- #
 # Experiment 1 -- model comparison on the full feature set
 # --------------------------------------------------------------------------- #
 def experiment_model_comparison(panel, target, horizon=C.FORECAST_HORIZON):
+    """
+    Tune every model (grouped CV), then report pooled out-of-fold metrics using
+    the tuned hyperparameters, alongside the persistence baseline.  Returns the
+    metrics table, the built dataset, the OOF predictions, the tuned estimators
+    and the chosen-hyperparameter table.
+    """
     data = pp.build_supervised(panel, target, horizon)
     X, y, groups = data["X"], data["y"], data["groups"]
+
+    tuned, params = tune_models(X, y, groups)
 
     rows = []
     # Persistence baseline: y_hat(t+k) = y(t).  Some current-year values were
@@ -59,18 +103,18 @@ def experiment_model_comparison(panel, target, horizon=C.FORECAST_HORIZON):
     rows.append(base)
 
     oof_store = {}
-    for name, model in U.make_models().items():
-        preds = _oof_predict(model, X, y, groups)
+    for name, est in tuned.items():
+        preds = _oof_predict(clone(est), X, y, groups)
         m = U.regression_metrics(y, preds)
         m["Model"] = name
         rows.append(m)
         oof_store[name] = preds
 
     df = pd.DataFrame(rows).set_index("Model")[["RMSE", "MAE", "R2"]]
-    return df, data, oof_store
+    return df, data, oof_store, tuned, params
 
 
-def experiment_autoregressive(panel, target, model_key="XGBoost",
+def experiment_autoregressive(panel, target, estimator,
                               horizon=C.FORECAST_HORIZON):
     """
     Sanity check on the persistence baseline: add the current outcome value as a
@@ -81,20 +125,19 @@ def experiment_autoregressive(panel, target, model_key="XGBoost",
     X = data["X"].copy()
     X["outcome_now"] = data["y_now"].to_numpy()
     m = X["outcome_now"].notna().to_numpy()
-    model = U.make_models()[model_key]
-    preds = _oof_predict(model, X[m], data["y"][m], data["groups"][m])
+    preds = _oof_predict(clone(estimator), X[m], data["y"][m], data["groups"][m])
     return U.regression_metrics(data["y"][m], preds)
 
 
 # --------------------------------------------------------------------------- #
 # Experiment 2 -- the central hypothesis: economics alone vs. + health + social
 # --------------------------------------------------------------------------- #
-def experiment_feature_sets(panel, target, model_key="XGBoost",
+def experiment_feature_sets(panel, target, estimator,
                             horizon=C.FORECAST_HORIZON):
     """
     Compare feature sets on a common set of rows (those with observed social
     variables) for both the LEVEL target y_{t+k} and the multi-year GAIN
-    Delta y = y_{t+k} - y_t.
+    Delta y = y_{t+k} - y_t.  `estimator` is the tuned pipeline to reuse.
     """
     sets = pp.feature_sets_for(target)
     # Build once on the full feature list so rows align, then subset columns.
@@ -115,13 +158,11 @@ def experiment_feature_sets(panel, target, model_key="XGBoost",
     rows = []
     for set_name, cols in sets.items():
         cols = [c for c in cols if c in Xc.columns]
-        model = U.make_models()[model_key]
         # Target = future LEVEL
-        preds_lvl = _oof_predict(model, Xc[cols], yc, gc)
+        preds_lvl = _oof_predict(clone(estimator), Xc[cols], yc, gc)
         m_lvl = U.regression_metrics(yc, preds_lvl)
         # Target = multi-year GAIN (rows with observed y_t only)
-        model = U.make_models()[model_key]
-        preds_dlt = _oof_predict(model, Xc[cols][gmask], dc[gmask], gc[gmask])
+        preds_dlt = _oof_predict(clone(estimator), Xc[cols][gmask], dc[gmask], gc[gmask])
         m_dlt = U.regression_metrics(dc[gmask], preds_dlt)
         rows.append({
             "Feature set": set_name, "n_features": len(cols),
@@ -137,14 +178,14 @@ def experiment_feature_sets(panel, target, model_key="XGBoost",
 # --------------------------------------------------------------------------- #
 # Experiment 3 -- feature importance (permutation + SHAP) on a temporal hold-out
 # --------------------------------------------------------------------------- #
-def experiment_importance(panel, target, model_key="XGBoost",
+def experiment_importance(panel, target, estimator,
                           horizon=C.FORECAST_HORIZON):
     data = pp.build_supervised(panel, target, horizon)
     X, y, ty = data["X"], data["y"], data["target_year"]
     train = ty <= (min(C.TEST_YEARS) - 1)
     test = ~train
 
-    model = U.make_models()[model_key]
+    model = clone(estimator)
     model.fit(X[train], y[train])
 
     # Permutation importance on the held-out (future) years.
@@ -178,20 +219,23 @@ def experiment_importance(panel, target, model_key="XGBoost",
 # --------------------------------------------------------------------------- #
 # Experiment 4 -- temporal generalisation
 # --------------------------------------------------------------------------- #
-def experiment_temporal(panel, target, horizon=C.FORECAST_HORIZON):
+def experiment_temporal(panel, target, models=None, horizon=C.FORECAST_HORIZON):
+    """Forward-in-time hold-out. `models` may be the tuned estimators dict."""
     data = pp.build_supervised(panel, target, horizon)
     X, y, ty = data["X"], data["y"], data["target_year"]
     train = ty <= (min(C.TEST_YEARS) - 1)
     test = ~train
+    models = models if models is not None else U.make_models()
 
     rows = []
     pm = test & data["persistence_pred"].notna()
     base = U.regression_metrics(y[pm], data["persistence_pred"][pm])
     base["Model"] = "Persistence (y_t)"
     rows.append(base)
-    for name, model in U.make_models().items():
-        model.fit(X[train], y[train])
-        m = U.regression_metrics(y[test], model.predict(X[test]))
+    for name, model in models.items():
+        est = clone(model)
+        est.fit(X[train], y[train])
+        m = U.regression_metrics(y[test], est.predict(X[test]))
         m["Model"] = name
         rows.append(m)
     df = pd.DataFrame(rows).set_index("Model")[["RMSE", "MAE", "R2"]]

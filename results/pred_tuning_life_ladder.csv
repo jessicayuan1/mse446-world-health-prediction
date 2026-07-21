@@ -1,0 +1,6 @@
+Model,CV_RMSE,best_params
+Linear,0.6220105826591376,{}
+Ridge,0.6097165992588819,{'alpha': 100.0}
+Lasso,0.6171687068142441,{'alpha': 0.05}
+Random Forest,0.5896389352303725,"{'max_depth': None, 'min_samples_leaf': 5, 'n_estimators': 400}"
+XGBoost,0.5822159620203472,"{'learning_rate': 0.03, 'max_depth': 6, 'n_estimators': 300, 'subsample': 0.8}"
