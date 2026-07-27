@@ -3,7 +3,7 @@ Assemble the project report as a Jupyter notebook (MSE446_Project_Report.ipynb).
 
 The notebook is the human-readable report: markdown narrative interleaved with
 code cells that load the cached results/ tables and figures/ images produced by
-`run_all.py` and display them inline.  Running this builder writes the .ipynb;
+run_all.py and display them inline. Running this builder writes the .ipynb;
 executing that notebook (done automatically afterwards) embeds all outputs.
 """
 import json
@@ -32,30 +32,30 @@ def code(text):
 md(r"""
 # Predicting and Clustering National Development Trajectories from Health and Economic Indicators
 
-**Joey Suh · Jessica Yuan · Maham Ali · Farzad Rahman**
-MSE 446 — Introduction to Machine Learning · Project Report
+**Joey Suh, Jessica Yuan, Maham Ali, Farzad Rahman**
+MSE 446, Introduction to Machine Learning. Project Report.
 
 ---
 
 ### Abstract
 
-We assemble an original country–year panel (217 countries, 2005–2020) by joining
-the World Bank's *World Development Indicators* with the *World Happiness Report*
-(Gallup World Poll), and use it to ask two questions. **(1) Prediction:** given a
+We assemble an original country-year panel (217 countries, 2005 to 2020) by
+joining the World Bank's *World Development Indicators* with the *World Happiness
+Report* (Gallup World Poll), and use it to answer two questions. First, given a
 country's economic, health and social indicators in year *t*, how well can we
-forecast its life expectancy and its subjective *life-ladder* score in year
-*t + 4*, and do social/health factors add predictive power on top of income? **(2)
-Clustering:** treating each country's multi-year path as a trajectory, do
-data-driven "development archetypes" line up with World Bank income tiers, or do
-they diverge? Using grouped-by-country cross-validation we find that a full
-economic + health + social feature set roughly **halves** life-expectancy
-forecast error versus an economics-only model (R² 0.72 → 0.92) and that
-**social support**, not GDP, is the single strongest predictor of future
-happiness. Clustering countries on the *shape* of their trajectories recovers a
-robust developed/developing split (bootstrap ARI ≈ 0.96) whose main axis of
-disagreement with income tiers is **momentum**: a large group of low- and
-middle-income countries is improving far faster than their income class implies,
-while several resource-rich upper-middle-income states under-perform.
+forecast its life expectancy and its subjective life-ladder score in year
+*t + 4*, and do social and health factors add predictive power beyond income?
+Second, treating each country's multi-year path as a trajectory, do data-driven
+development archetypes align with World Bank income tiers or diverge from them?
+Under cross-validation grouped by country, a full economic, health and social
+feature set roughly halves the life-expectancy forecast error relative to an
+economics-only model (level R-squared from 0.72 to 0.92), and social support,
+not GDP, is the strongest single predictor of future happiness. Clustering
+countries on the shape of their trajectories recovers a stable developed and
+developing split (bootstrap ARI about 0.96) whose main disagreement with income
+tiers is momentum: many low- and middle-income countries are improving much
+faster than their income class implies, while several resource-rich
+upper-middle-income states under-perform.
 """)
 
 # =========================================================================== #
@@ -64,35 +64,36 @@ while several resource-rich upper-middle-income states under-perform.
 md(r"""
 ## 1. Problem statement and hypotheses
 
-The "beyond GDP" movement argues that national income is a poor summary of human
-progress. We operationalise that debate as concrete machine-learning tasks.
+The "beyond GDP" position holds that national income is a poor summary of human
+progress. We turn that position into two machine-learning tasks.
 
-**Task 1 — Forecasting (supervised regression).** For a country observed in year
-*t*, predict a key well-being outcome in year *t + k* (k = 4):
+**Task 1: Forecasting (supervised regression).** For a country observed in year
+*t*, predict a well-being outcome in year *t + k* (k = 4):
 
-* $y^{LE}_{t+k}$ — life expectancy at birth (a hard demographic outcome), and
-* $y^{LL}_{t+k}$ — the Cantril *life-ladder* score (subjective well-being, 0–10).
+* $y^{LE}_{t+k}$: life expectancy at birth, an objective demographic outcome, and
+* $y^{LL}_{t+k}$: the Cantril life-ladder score, subjective well-being on a 0 to 10 scale.
 
-> **Hypothesis H1.** Economic inputs *alone* (GDP per capita, urbanisation,
-> inequality) are weak predictors of future outcomes; adding health-system and
-> social factors (immunisation, sanitation, physicians, social support, freedom)
-> adds substantial predictive power.
+> **Hypothesis H1.** Economic inputs alone (GDP per capita, urbanisation,
+> inequality) are weak predictors of future outcomes, and adding health-system
+> and social factors (immunisation, sanitation, physicians, social support,
+> freedom) adds substantial predictive power.
 
-**Task 2 — Clustering (unsupervised).** Represent each country by the *level,
-slope and volatility* of its indicators over time and group countries into a few
-development archetypes.
+**Task 2: Clustering (unsupervised).** Represent each country by the level, slope
+and volatility of its indicators over time, then group countries into a small
+number of development archetypes.
 
-> **Hypothesis H2.** Data-driven trajectory clusters will *not* simply reproduce
-> the four World Bank income tiers; the mismatches identify countries that over-
-> or under-perform their income class.
+> **Hypothesis H2.** The data-driven trajectory clusters do not simply reproduce
+> the four World Bank income tiers, and the mismatches identify countries that
+> over- or under-perform their income class.
 
-**Why machine learning?** A database query returns today's indicator values but
-cannot map a nonlinear combination of many correlated inputs to a *future*
-outcome, nor rank which present-day factors *precede* health gains — both require
-a fitted predictive model and its feature-attribution. Likewise there is no
-ground-truth "development type" to `GROUP BY`; the archetypes must be *discovered*
-in high-dimensional trajectory space. The value comes from generalisation and
-pattern discovery, not from summarising values that already exist in a table.
+**Why machine learning is the right tool.** A database query returns current
+indicator values, but it cannot map a nonlinear combination of many correlated
+inputs to a future outcome, and it cannot rank which present-day factors precede
+health gains. Both of those require a fitted predictive model and its feature
+attribution. The clustering task has no ground-truth "development type" to group
+by, so the archetypes must be discovered in a high-dimensional trajectory space.
+In both tasks the value comes from generalisation and pattern discovery rather
+than from retrieving values that already exist in the table.
 """)
 
 # =========================================================================== #
@@ -101,9 +102,9 @@ pattern discovery, not from summarising values that already exist in a table.
 md(r"""
 ## 2. Data and methods
 
-All figures and tables below are produced by the pipeline in `src/` and
+The figures and tables in this report are produced by the pipeline in `src/` and
 regenerated by `python run_all.py`. This notebook loads the cached artifacts from
-`figures/` and `results/` so the report renders quickly and deterministically.
+`figures/` and `results/` so it renders quickly and deterministically.
 """)
 
 code(r"""
@@ -127,31 +128,30 @@ print(f"Panel: {summary['n_rows']} country-year rows, "
 """)
 
 # =========================================================================== #
-# 3.1 Data sources
+# 2.1 Data sources
 # =========================================================================== #
 md(r"""
 ### 2.1 Data sources and integration
 
-We build the panel ourselves from three public sources joined on ISO-3 country
-code and year:
+We build the panel from three public sources joined on ISO-3 country code and
+year:
 
 | Source | Access | Variables |
 |---|---|---|
-| **World Bank WDI** | `wbgapi` client | life expectancy, under-5 & infant mortality, fertility, health expenditure p.c., DTP3 & measles immunisation, physicians/1k, sanitation & water access, GDP p.c. (PPP), urbanisation, primary enrolment, Gini |
-| **World Happiness Report** (Gallup) | official "Data for Table 2.1" panel | life-ladder, log GDP p.c., social support, freedom, generosity, corruption perception, positive/negative affect |
-| **World Bank income tiers** | `wbgapi` economy metadata | Low / Lower-middle / Upper-middle / High income, region |
+| World Bank WDI | `wbgapi` client | life expectancy, under-5 and infant mortality, fertility, health expenditure per capita, DTP3 and measles immunisation, physicians per 1k, sanitation and water access, GDP per capita (PPP), urbanisation, primary enrolment, Gini |
+| World Happiness Report (Gallup) | official "Data for Table 2.1" panel | life-ladder, log GDP per capita, social support, freedom, generosity, corruption perception, positive and negative affect |
+| World Bank income tiers | `wbgapi` economy metadata | Low, Lower-middle, Upper-middle, High income; region |
 
-WHR country names are reconciled to World Bank ISO-3 codes with a curated
-name-fix map (e.g. *Russia → Russian Federation*, *Czech Republic → Czechia*);
-only three WHR entities that are not World Bank economies (North Cyprus,
-Somaliland region, Taiwan) are dropped. The merge yields **3,472 country-year
-rows**.
+World Happiness Report country names are reconciled to World Bank ISO-3 codes
+with a curated name map (for example Russia to Russian Federation, Czech Republic
+to Czechia). Only three entities that are not World Bank economies (North Cyprus,
+Somaliland region, Taiwan) are dropped. The merge yields 3,472 country-year rows.
 
-**Realism / sparsity.** As anticipated, coverage is uneven: the Gini index and
-the subjective WHR variables are the sparsest, and the WHR only covers ~160 of
-the 217 countries. Pooling across country-years still yields a few thousand
-training rows, so we lean on regularisation and grouped cross-validation rather
-than high-variance models.
+Coverage is uneven, as expected. The Gini index and the subjective Gallup
+variables are the sparsest, and the World Happiness Report covers about 160 of
+the 217 countries. Pooling across country-years still gives a few thousand
+training rows, so we favour regularised and grouped cross-validation over
+high-variance methods.
 """)
 
 code(r"""
@@ -159,9 +159,9 @@ show("eda_coverage.png", width=620)
 """)
 
 md(r"""
-*Figure 1. Variable coverage after cleaning.* Hard demographic/economic
-indicators are near-complete; the Gini index and Gallup-sourced social variables
-are the sparsest, which motivates the imputation strategy below.
+*Figure 1. Variable coverage after cleaning.* The demographic and economic
+indicators are near-complete, while the Gini index and the Gallup social
+variables are the sparsest. This motivates the imputation strategy in Section 2.2.
 """)
 
 code(r"""
@@ -171,9 +171,10 @@ show("eda_trajectories.png", width=720)
 
 md(r"""
 *Figure 2. Prediction targets and example trajectories.* Life expectancy is
-left-skewed (a long tail of low-life-expectancy country-years); the life-ladder is
-roughly symmetric. The trajectory panel shows why a *forecasting* framing is
-interesting: countries such as Rwanda and China rise steeply, others plateau.
+left-skewed, with a tail of low-life-expectancy country-years, while the
+life-ladder is roughly symmetric. The trajectory panel motivates the forecasting
+framing: some countries, such as Rwanda and China, rise steeply while others
+plateau.
 """)
 
 code(r"""
@@ -181,80 +182,81 @@ show("eda_correlation.png", width=760)
 """)
 
 md(r"""
-*Figure 3. Correlation structure.* Health and economic indicators are strongly
-inter-correlated (e.g. mortality ↔ life expectancy ↔ GDP), confirming that many
-inputs carry overlapping signal — a setting where regularised and tree-based
-models, plus permutation/SHAP attribution, are more trustworthy than raw
-coefficients.
+*Figure 3. Correlation structure.* The health and economic indicators are
+strongly correlated with each other and with the targets, so many inputs carry
+overlapping signal. In this setting regularised and tree-based models, together
+with permutation and SHAP attribution, are more reliable than raw coefficients.
 """)
 
 # =========================================================================== #
-# 3.2 Methods
+# 2.2 Methods
 # =========================================================================== #
 md(r"""
 ### 2.2 Methodology
 
-**Cleaning & imputation.** We despike obvious source errors with a robust
-within-country median/MAD rule (e.g. a Central African Republic life-expectancy
-value of 14.7 sandwiched between values near 50), interpolate interior gaps
-within each country's own series, and impute residual gaps with multivariate
-*IterativeImputer* (MICE) **inside** the model pipeline so it is fit only on
-training folds. Targets are never imputed — a row with a missing outcome is
-dropped, so no fabricated label enters training or evaluation.
+**Cleaning and imputation.** We remove clear source errors with a robust
+within-country median and MAD rule (for example a Central African Republic
+life-expectancy value of 14.7 sitting between values near 50), interpolate
+interior gaps within each country's own series, and impute the residual gaps with
+a multivariate iterative imputer (MICE) fit inside the model pipeline so that it
+sees only training-fold data. Targets are never imputed: a row with a missing
+outcome is dropped, so no fabricated label enters training or evaluation.
 
 **Target construction.** For each (country, *t*) we attach the outcome at
-*t + 4*. We model both the future **level** $y_{t+k}$ and the multi-year **gain**
-$\Delta y = y_{t+k} - y_t$; the gain is the sharper test of *H1* because it asks
-which present conditions precede *improvement*.
+*t + 4*. We model both the future level $y_{t+k}$ and the multi-year gain
+$\Delta y = y_{t+k} - y_t$. The gain is the sharper test of H1 because it asks
+which present conditions precede improvement.
 
-**Prediction models.** Baseline linear regression, regularised Ridge and Lasso,
-and tree ensembles (Random Forest, XGBoost), each wrapped as
-`IterativeImputer → StandardScaler → estimator`. Every model's hyperparameters
-are tuned by **`GridSearchCV` under the same GroupKFold** (regularisation
-strength for Ridge/Lasso; depth, leaf size and number of trees for the Random
-Forest; depth, learning rate and number of rounds for XGBoost), scoring on RMSE;
-the selected settings are reported below.
+**Prediction models.** We compare a baseline linear regression, regularised Ridge
+and Lasso, and two tree ensembles, Random Forest and XGBoost (Chen and Guestrin,
+2016). Each is a pipeline of iterative imputation, standard scaling, then the
+estimator, implemented with scikit-learn (Pedregosa et al., 2011). Every model's
+hyperparameters are tuned with `GridSearchCV` under the same GroupKFold
+(regularisation strength for Ridge and Lasso; depth, leaf size and number of
+trees for the Random Forest; depth, learning rate and number of rounds for
+XGBoost), scored on RMSE. The selected settings are reported in Section 3.1.
 
-**Evaluation — leakage control.** Our headline metric is **5-fold GroupKFold
-cross-validation grouped by country**: a country never appears in both train and
-test, so within-country autocorrelation cannot inflate scores. We also report a
-naive **persistence** baseline ($\hat y_{t+k} = y_t$) and a forward-in-time
-**temporal hold-out** (train on target years ≤ 2016, test 2017–2020).
+**Evaluation and leakage control.** The headline metric is 5-fold GroupKFold
+cross-validation grouped by country, so a country never appears in both training
+and test folds and within-country autocorrelation cannot inflate scores. We also
+report a persistence baseline ($\hat y_{t+k} = y_t$) and a forward-in-time
+temporal hold-out (train on target years up to 2016, test on 2017 to 2020).
 
-**Attribution.** Permutation importance (on held-out years) and SHAP values rank
-which indicators drive the forecasts.
+**Attribution.** Permutation importance, computed on held-out years, and SHAP
+values (Lundberg and Lee, 2017) rank the indicators that drive each forecast.
 
-**Clustering.** Per country we engineer *level, slope (per-decade trend) and
-volatility* for eight broadly-covered indicators, standardise, and cluster with
-K-means and Ward hierarchical clustering. We choose *k* by silhouette + elbow,
-check stability by bootstrapping (Adjusted Rand Index), profile each cluster, and
-cross-tabulate against income tiers.
+**Clustering.** For each country we engineer three trajectory descriptors, the
+level, the per-decade slope and the volatility, for eight broadly covered
+indicators, standardise them, and cluster with K-means and Ward hierarchical
+clustering. We select *k* using the silhouette score and the elbow of the
+inertia curve, check stability by bootstrapping (Adjusted Rand Index), profile
+each cluster, and cross-tabulate the clusters against income tiers.
 """)
 
 # =========================================================================== #
-# 4. Results
+# 3. Results
 # =========================================================================== #
 md(r"""
 ## 3. Results
 
-### 3.1 Predicting the future from a country's conditions
+### 3.1 Forecasting outcomes from a country's conditions
 
-**Purpose.** Establish how well each model forecasts the *t + 4* outcome from
+**Purpose.** Measure how well each model forecasts the *t + 4* outcome from
 year-*t* indicators, judged against the persistence baseline under
-grouped-by-country CV.
+cross-validation grouped by country.
 """)
 
 code(r"""
 disp = {"RMSE": "{:.3f}", "MAE": "{:.3f}", "R2": "{:.3f}"}
 for tgt, lab in [("life_expectancy", "Life expectancy (years)"),
                  ("life_ladder", "Life-ladder score")]:
-    print(f"=== {lab}  —  5-fold GroupKFold (by country) ===")
+    print(f"=== {lab}: 5-fold GroupKFold (by country) ===")
     display(table(f"pred_models_{tgt}.csv").style.format(disp))
 """)
 
 md(r"""
-**Hyperparameters selected by grouped-CV grid search** (with the resulting
-cross-validated RMSE at those settings):
+Hyperparameters selected by the grouped-CV grid search, with the cross-validated
+RMSE at those settings:
 """)
 
 code(r"""
@@ -270,18 +272,17 @@ show("pred_scatter_life_expectancy.png", width=430)
 """)
 
 md(r"""
-*Figure 4 & Table 1. Model comparison.* Two lessons stand out. First, **life
-expectancy is highly persistent**: the do-nothing baseline (R² = 0.96) is hard to
-beat over four years, and models that predict *from other conditions only* (no
-lagged outcome) trail it — XGBoost reaches R² = 0.89. This is the honest and
-important point: the interesting question is not "can we beat carry-forward" but
-"**which conditions carry information about the future**". Second, among learned
-models the **tree ensembles clearly dominate the linear family** even after
-tuning (XGBoost RMSE ≈ 2.65 vs. Ridge ≈ 2.94), evidence of genuine nonlinearity
-in the input→outcome map.
-When the current outcome *is* added as a feature, XGBoost rises to **R² = 0.981**
-(life expectancy) and **0.798** (life-ladder), exceeding persistence — so the
-indicators do add signal beyond simple carry-forward.
+*Figure 4 and Table 1. Model comparison.* Two results stand out. First, life
+expectancy is highly persistent: the persistence baseline reaches R-squared 0.96,
+and models that use only other conditions, without the lagged outcome, do not
+beat it, with XGBoost at 0.89. The useful question is therefore not whether a
+model beats carry-forward, but which conditions carry information about the
+future. Second, the tree ensembles outperform the linear models even after
+tuning (XGBoost RMSE about 2.65 against Ridge about 2.94), which indicates
+nonlinear structure in the mapping from inputs to outcome. When the current
+outcome is added as a feature, XGBoost reaches R-squared 0.981 for life
+expectancy and 0.798 for the life-ladder, both above persistence, confirming that
+the indicators add information beyond simple carry-forward.
 """)
 
 code(r"""
@@ -293,11 +294,11 @@ for t, m in ar.items():
 
 # --------------------------------------------------------------------------- #
 md(r"""
-### 3.2 The central hypothesis (H1): does "beyond-GDP" information help?
+### 3.2 The central hypothesis (H1): does beyond-GDP information help?
 
-**Purpose.** On the *same* countries (those with observed social variables), compare
-an **economics-only** feature set against the **full** economic + health + social
-set, for both the future *level* and the multi-year *gain*.
+**Purpose.** On the same countries, those with observed social variables, compare
+an economics-only feature set against the full economic, health and social set,
+for both the future level and the multi-year gain.
 """)
 
 code(r"""
@@ -311,24 +312,25 @@ show("pred_featuresets_life_ladder.png", width=560)
 """)
 
 md(r"""
-*Figure 5 & Table 2. Hypothesis test.* **H1 is strongly supported.** For life
-expectancy, moving from economics-only to the full set lifts the *level* R² from
-**0.72 → 0.92** and cuts RMSE almost in half (4.51 → 2.35 years). The effect is
-even sharper on the *gain* task, where economics-only is **worse than predicting
-the mean** (R² = −0.10) while the full set becomes informative (R² = 0.17). For
-the life-ladder, the full set raises level R² from **0.60 → 0.72**. Four-year
-*changes* in happiness are largely unpredictable from any of these slow-moving
-structural indicators (gain R² stays ≤ 0), a genuinely useful negative result:
-subjective well-being shifts are driven by shorter-term shocks our annual panel
-does not capture.
+*Figure 5 and Table 2. Hypothesis test.* H1 is clearly supported. For life
+expectancy, moving from the economics-only set to the full set raises the level
+R-squared from 0.72 to 0.92 and cuts RMSE from 4.51 to 2.35 years. The effect is
+larger on the gain task, where economics-only performs worse than predicting the
+mean (R-squared -0.10) and the full set becomes informative (0.17). For the
+life-ladder, the full set raises the level R-squared from 0.60 to 0.72. Four-year
+changes in happiness remain hard to predict from these slow-moving structural
+indicators (gain R-squared at or below zero), which suggests that short-term
+shocks the annual panel does not capture drive most of the variation in
+well-being changes.
 """)
 
 # --------------------------------------------------------------------------- #
 md(r"""
-### 3.3 Which factors precede the outcomes?
+### 3.3 Which factors precede the outcomes
 
-**Purpose.** Rank indicators by permutation importance (drop in held-out R² when
-shuffled) and inspect SHAP value distributions for the XGBoost model.
+**Purpose.** Rank indicators by permutation importance, the drop in held-out
+R-squared when a feature is shuffled, and inspect the SHAP value distributions
+for the XGBoost model.
 """)
 
 code(r"""
@@ -337,12 +339,12 @@ show("pred_shap_life_expectancy.png", width=680)
 """)
 
 md(r"""
-*Figure 6. Drivers of future life expectancy.* Child-health outcomes dominate —
-**under-5 mortality** (ΔR² ≈ 0.37) and **infant mortality** (≈ 0.23) — followed by
-**sanitation access**, **fertility** and health spending. GDP per capita ranks
-mid-pack. The message aligns with the Preston-curve literature: once basic health
-conditions are accounted for, income adds relatively little to the *forecast* of
-future longevity.
+*Figure 6. Drivers of future life expectancy.* Child-health outcomes dominate:
+under-5 mortality (importance about 0.37) and infant mortality (about 0.23),
+followed by sanitation access, fertility and health spending. GDP per capita
+ranks in the middle. This is consistent with the Preston curve (Preston, 1975):
+once basic health conditions are accounted for, income adds relatively little to
+the forecast of future longevity.
 """)
 
 code(r"""
@@ -351,44 +353,45 @@ show("pred_shap_life_ladder.png", width=680)
 """)
 
 md(r"""
-*Figure 7. Drivers of future happiness.* **Social support is the single strongest
-predictor** of the future life-ladder (ΔR² ≈ 0.13) — larger than (log) GDP per
-capita — with generosity and freedom also contributing. This is direct,
-model-based evidence for the "beyond GDP" thesis: for subjective well-being, the
-quality of a country's social fabric out-predicts its income.
+*Figure 7. Drivers of future happiness.* Social support is the strongest single
+predictor of the future life-ladder (importance about 0.13), ahead of log GDP per
+capita, with generosity and freedom also contributing. This gives model-based
+support for the beyond-GDP view: for subjective well-being, the strength of a
+country's social relationships predicts future outcomes better than its income.
 """)
 
 # --------------------------------------------------------------------------- #
 md(r"""
 ### 3.4 Temporal generalisation
 
-**Purpose.** Check forward-in-time generalisation: train on target years ≤ 2016,
-test on 2017–2020 (the same countries appear, unseen years).
+**Purpose.** Check forward-in-time generalisation by training on target years up
+to 2016 and testing on 2017 to 2020, where the same countries appear in unseen
+years.
 """)
 
 code(r"""
 for tgt, lab in [("life_expectancy", "Life expectancy"),
                  ("life_ladder", "Life-ladder")]:
-    print(f"=== {lab}: temporal hold-out (train ≤2016, test 2017–2020) ===")
+    print(f"=== {lab}: temporal hold-out (train up to 2016, test 2017-2020) ===")
     display(table(f"pred_temporal_{tgt}.csv").style.format("{:.3f}"))
 """)
 
 md(r"""
-*Table 3. Temporal hold-out.* Scores are **much higher** here than under grouped
-CV (XGBoost life-expectancy R² = 0.95 vs. 0.89). The gap is itself the insight:
-when a country has been *seen* (in earlier years) the model can exploit its
-level, so temporal generalisation is easy; generalising to *unseen countries* is
-the hard problem, and reporting both prevents the optimistic temporal number from
-overstating what the model has learned. Linear models fail to close the gap
-(R² ≈ 0.87), again pointing to nonlinearity.
+*Table 3. Temporal hold-out.* Scores are higher here than under grouped CV
+(XGBoost life-expectancy R-squared 0.95 against 0.89). The gap is informative:
+when a country appears in the training years the model can use its level, so
+forward-in-time prediction for known countries is comparatively easy, whereas
+generalising to unseen countries is harder. Reporting both settings avoids
+overstating what the model has learned. The linear models do not close the gap
+(R-squared about 0.87), consistent with the nonlinearity seen in Section 3.1.
 """)
 
 # --------------------------------------------------------------------------- #
 md(r"""
 ### 3.5 Clustering development trajectories (H2)
 
-**Purpose.** Discover development archetypes from trajectory features and test
-whether they reproduce income tiers.
+**Purpose.** Discover development archetypes from the trajectory features and test
+whether they reproduce the income tiers.
 """)
 
 code(r"""
@@ -399,12 +402,12 @@ show("clu_kselection.png", width=560)
 """)
 
 md(r"""
-*Figure 8. Choosing k.* The silhouette peaks at **k = 2** (0.312), essentially tied
-with k = 3 (0.300) before falling sharply. We adopt **k = 2** as the primary,
-most *stable* solution (bootstrap ARI = %.2f ± %.2f); K-means and Ward agree
-strongly (ARI = %.2f). Forcing k = 3 splits off a small **fragile-states** group
-(Central African Republic, Somalia, South Sudan) but with markedly lower
-stability (ARI ≈ %.2f), so we treat it as exploratory.
+*Figure 8. Choosing k.* The silhouette score peaks at k = 2 (0.312) and is close
+at k = 3 (0.300) before dropping. We use k = 2 as the primary solution because it
+is the most stable (bootstrap ARI = %.2f plus or minus %.2f), and K-means and
+Ward agree closely (ARI = %.2f). Setting k = 3 separates a small fragile-states
+group (Central African Republic, Somalia, South Sudan) but is markedly less
+stable (ARI about %.2f), so we treat it as exploratory.
 """ % (summary["clustering"]["stability_ari_mean"],
        summary["clustering"]["stability_ari_std"],
        summary["clustering"]["ari_kmeans_vs_ward"],
@@ -416,9 +419,9 @@ show("clu_dendrogram.png", width=820)
 """)
 
 md(r"""
-*Figure 9. Archetypes in trajectory space.* The two clusters separate cleanly
-along PC1 (the dominant "development level" axis). Cluster 0 is the
-**emerging/developing** archetype, cluster 1 the **advanced** archetype.
+*Figure 9. Archetypes in trajectory space.* The two clusters separate along PC1,
+the dominant development-level axis. Cluster 0 is the emerging or developing
+archetype and cluster 1 is the advanced archetype.
 """)
 
 code(r"""
@@ -430,17 +433,17 @@ show("clu_profile.png", width=980)
 """)
 
 md(r"""
-*Figure 10 & Table 4. Cluster profiles.* Beyond the obvious level gaps
-(advanced cluster: life expectancy ≈ 76 vs. 61 years; GDP ≈ \$32.8k vs. \$5.2k),
-the **slope** tells the interesting story: the emerging cluster is improving its
-life expectancy about **2.5× faster** (+4.5 vs. +1.8 years/decade) and expanding
-sanitation far faster — classic *convergence* that a static income tier cannot
-express.
+*Figure 10 and Table 4. Cluster profiles.* Beyond the level gaps (advanced
+cluster life expectancy about 76 against 61 years, GDP about \$32.8k against
+\$5.2k), the slope is the informative dimension. The emerging cluster improves
+life expectancy roughly 2.5 times faster (+4.5 against +1.8 years per decade) and
+expands sanitation faster. This convergence is not visible in a static income
+tier.
 """)
 
 # --------------------------------------------------------------------------- #
 md(r"""
-### 3.6 Clusters vs. income tiers, and who diverges
+### 3.6 Clusters against income tiers, and who diverges
 
 **Purpose.** Cross-tabulate the data-driven clusters against World Bank income
 groups and surface the countries whose archetype disagrees with their income
@@ -456,17 +459,17 @@ display(pd.read_csv(os.path.join(RES, "clu_overperformers.csv")))
 """)
 
 md(r"""
-*Figure 11 & Tables 5–6. Divergence from income tiers (H2).* The clusters broadly
-track income but with revealing exceptions. **Under-performers** — upper-middle-
-income countries that cluster with the developing world — are dominated by
-**resource-rich, high-inequality economies** (Equatorial Guinea, Gabon, Botswana,
-South Africa, Iraq): high GDP that has not translated into commensurate health
-and social development, exactly the "GDP is not enough" cases. **Over-performers**
-— lower-income countries clustering with the advanced group — have relatively
-strong health/education systems for their income (e.g. Kyrgyz Republic, Morocco,
-Nicaragua, West Bank & Gaza), good candidates for policy case studies. (North
-Korea and Syria also appear here but reflect known data-quality limits.) This
-confirms **H2**: trajectory clusters are *not* a relabelling of income tiers.
+*Figure 11 and Tables 5 and 6. Divergence from income tiers (H2).* The clusters
+broadly track income but with informative exceptions. The under-performers are
+upper-middle-income countries that group with the developing cluster, and they
+are mostly resource-rich, high-inequality economies (Equatorial Guinea, Gabon,
+Botswana, South Africa, Iraq) whose income has not translated into comparable
+health and social development. The over-performers are lower-income countries
+that group with the advanced cluster, and they have relatively strong health and
+education systems for their income (for example Kyrgyz Republic, Morocco,
+Nicaragua, West Bank and Gaza), which makes them natural policy case studies.
+North Korea and Syria also appear here but reflect known data-quality issues.
+This supports H2: the trajectory clusters are not a relabelling of income tiers.
 """)
 
 # =========================================================================== #
@@ -475,37 +478,37 @@ confirms **H2**: trajectory clusters are *not* a relabelling of income tiers.
 md(r"""
 ## 4. Limitations
 
-We flag the main threats to validity and scope so the results are read in
-context.
+We note the main threats to validity and the scope of the results.
 
-* **Data quality and coverage.** WDI values contain occasional source errors
-  (some of which our despiking removes, but not all) and the sparsest series —
-  the Gini index and the Gallup-sourced social variables — are missing for a
-  large share of country-years, so parts of the feature space rely on
-  imputation. A few countries (notably North Korea and Syria) have known
-  reliability issues yet still surface in the cluster analysis.
-* **Imputation caveat.** MICE is fit inside CV folds (no leakage), but the prior
-  within-country interpolation uses a country's own past *and* future values; it
-  is harmless under grouped CV (a country sits in one fold) yet mildly optimistic
-  for the temporal hold-out.
-* **Hyperparameter selection.** Grids are tuned with grouped CV and then the same
-  data is used for the out-of-fold evaluation; a fully **nested** CV would remove
-  the small optimistic bias this introduces. Search grids are modest by design.
-* **Association, not causation.** Permutation and SHAP importances identify which
-  indicators *precede* and *predict* outcomes; they are **not** causal effects.
-  Confounding (e.g. governance quality driving many indicators at once) is not
-  addressed.
+* **Data quality and coverage.** WDI values contain occasional source errors, and
+  the despiking rule removes the clearest of these but not all. The sparsest
+  series, the Gini index and the Gallup social variables, are missing for a large
+  share of country-years, so parts of the feature space rely on imputation. A few
+  countries, notably North Korea and Syria, have known reliability problems yet
+  still appear in the cluster analysis.
+* **Imputation caveat.** The iterative imputer is fit inside the CV folds, so it
+  does not leak, but the earlier within-country interpolation uses a country's own
+  past and future values. This is harmless under grouped CV, where a country sits
+  entirely in one fold, but it is mildly optimistic for the temporal hold-out.
+* **Hyperparameter selection.** The grids are tuned with grouped CV and the same
+  data is then used for the out-of-fold evaluation. A fully nested CV would remove
+  the small optimistic bias this introduces. The search grids are also modest by
+  design.
+* **Association, not causation.** The permutation and SHAP importances identify
+  indicators that precede and predict the outcomes; they are not causal effects.
+  Confounding, for example governance quality moving many indicators at once, is
+  not addressed.
 * **Correlated features.** Health, economic and social indicators are highly
-  inter-correlated, so importance is shared among proxies (e.g. under-5 vs.
-  infant mortality) and individual rankings should be read as *groups* of
-  related signals.
-* **Horizon and panel length.** With a 4-year horizon over 2005–2020 each country
-  contributes a limited number of (t → t+4) windows; the negative gain-R² for
-  happiness partly reflects this short, annual panel rather than pure
+  correlated, so importance is shared among proxies (for example under-5 against
+  infant mortality). Individual rankings should be read as groups of related
+  signals.
+* **Horizon and panel length.** With a 4-year horizon over 2005 to 2020 each
+  country contributes a limited number of windows. The negative gain R-squared for
+  happiness partly reflects this short annual panel rather than pure
   unpredictability.
-* **Clustering choices.** Trajectory features (level/slope/volatility) and *k* are
-  design decisions; the silhouette-optimal k = 2 is robust, but the finer k = 3
-  structure is less stable and should be treated as exploratory.
+* **Clustering choices.** The trajectory features and the value of *k* are design
+  decisions. The silhouette-optimal k = 2 is stable, but the finer k = 3 structure
+  is less stable and is treated as exploratory.
 """)
 
 # =========================================================================== #
@@ -514,39 +517,40 @@ context.
 md(r"""
 ## 5. Conclusions
 
-**On the problem.** (1) Adding health and social information to economic inputs
-substantially improves forecasts of future well-being — roughly halving
-life-expectancy forecast error and lifting happiness R² by ~0.12 — confirming
-*H1*. Feature attribution localises the effect: **child-health and sanitation**
-drive future *longevity*, while **social support** (more than income) drives
-future *happiness*. (2) Clustering countries on trajectory shape yields a robust
-developed/developing split whose disagreements with income tiers are
-substantively meaningful: resource-rich under-performers and social-capital-rich
-over-performers, plus a *momentum* dimension (fast-converging developing
-countries) that income tiers miss entirely — confirming *H2*.
+**On the problem.** Adding health and social indicators to economic inputs clearly
+improves forecasts of future well-being, roughly halving the life-expectancy
+forecast error and raising the happiness R-squared by about 0.12, which supports
+H1. Attribution locates the effect: child-health and sanitation indicators drive
+future longevity, while social support, ahead of income, drives future happiness.
+Clustering on trajectory shape produces a stable developed and developing split
+whose disagreements with income tiers are substantive, namely resource-rich
+under-performers, social-capital-rich over-performers, and a momentum dimension of
+fast-converging developing countries that income tiers do not capture. This
+supports H2.
 
 **On machine learning in general.**
-* **Baselines discipline claims.** A trivial persistence forecast beats every
-  learned model that ignores the lagged outcome; without it, an R² of 0.89 would
-  look impressive rather than sobering.
-* **Evaluation design changes the story.** Grouped-by-country CV (generalise to
-  new countries) is far harder than a temporal hold-out (generalise to new years
-  for known countries). Reporting a single split can be misleading.
-* **Negative results are informative.** Multi-year *gains* in happiness are
-  essentially unpredictable from slow structural indicators — a finding, not a
-  failure.
-* **Interpretability matters more than a leaderboard.** XGBoost only modestly
-  out-scores Ridge, but permutation/SHAP attribution is what actually answers the
-  policy question.
 
-**Future work.** (i) Extend the panel to 2023 and add lagged/rolling features and
-richer dynamics (e.g. time-series K-means with DTW on raw trajectories);
-(ii) model *gains* with explicit shock covariates (conflict, pandemics, commodity
-prices) to attack the negative gain-R²; (iii) add uncertainty quantification
-(quantile or conformal prediction) for policy use; (iv) causal framing (e.g.
-panel fixed-effects or double machine learning) to move from "precedes" to
-"causes"; (v) cluster on the full WHR+WDI feature set for finer, well-being-aware
-archetypes.
+* Baselines are necessary for interpretation. A simple persistence forecast beats
+  any model that ignores the lagged outcome, so the baseline is what makes an
+  R-squared of 0.89 readable as modest rather than strong.
+* Evaluation design changes the conclusion. Grouped-by-country CV, which
+  generalises to new countries, is much harder than a temporal hold-out, which
+  generalises to new years for known countries, so a single split can mislead.
+* Negative results carry information. Multi-year gains in happiness are close to
+  unpredictable from slow structural indicators, which is itself a finding about
+  the outcome.
+* Interpretation matters more than a leaderboard. XGBoost only modestly outscores
+  Ridge, but the permutation and SHAP attributions are what answer the policy
+  question.
+
+**Future work.** Extend the panel to 2023 and add lagged and rolling features and
+richer dynamics, such as time-series K-means with dynamic time warping on the raw
+trajectories. Model the gains with explicit shock covariates (conflict, pandemics,
+commodity prices) to address the negative gain R-squared. Add uncertainty
+quantification, for example quantile or conformal prediction, for policy use.
+Adopt a causal framing, such as panel fixed effects or double machine learning, to
+move from "precedes" to "causes". Finally, cluster on the full combined feature
+set for finer, well-being-aware archetypes.
 """)
 
 # =========================================================================== #
@@ -555,45 +559,67 @@ archetypes.
 md(r"""
 ## 6. Code and reproducibility
 
-The full, commented implementation lives in `src/` and is orchestrated by
+The full commented implementation is in `src/` and is orchestrated by
 `run_all.py`. See `README.md` for setup. In brief:
 
 ```bash
 pip install -r requirements.txt
-python run_all.py --rebuild   # re-download WDI + WHR, rebuild panel, run everything
+python run_all.py --rebuild   # re-download WDI and WHR, rebuild panel, run everything
 python build_report.py        # regenerate this notebook
 ```
-
-**Module map**
 
 | File | Responsibility |
 |---|---|
 | `src/config.py` | paths, indicator lists, feature groups, pipeline parameters |
-| `src/data_acquisition.py` | pull WDI (`wbgapi`) + WHR, reconcile names, merge panel |
-| `src/preprocessing.py` | despiking, within-country interpolation, t→t+k targets, feature sets |
-| `src/prediction.py` | model zoo, grouped CV, hypothesis test, permutation/SHAP, temporal split |
-| `src/clustering.py` | trajectory features, k-selection, K-means/Ward, stability, income cross-tab |
+| `src/data_acquisition.py` | pull WDI (`wbgapi`) and WHR, reconcile names, merge the panel |
+| `src/preprocessing.py` | despiking, within-country interpolation, t to t+k targets, feature sets |
+| `src/prediction.py` | model set, grouped CV, tuning, hypothesis test, permutation and SHAP, temporal split |
+| `src/clustering.py` | trajectory features, k-selection, K-means and Ward, stability, income cross-tab |
 | `src/utils.py` | metrics, leakage-safe model pipelines, plotting |
-| `run_all.py` | end-to-end pipeline → `figures/` + `results/` |
+| `run_all.py` | end-to-end pipeline that writes into `figures/` and `results/` |
 
 All randomness is seeded (`RANDOM_STATE = 42`). Evaluation uses grouped-by-country
-`GroupKFold`; imputation and scaling are fit inside CV folds to prevent leakage.
+`GroupKFold`, and imputation and scaling are fit inside the CV folds to prevent
+leakage.
 """)
 
 code(r"""
-# Reproducibility check: print the key headline numbers straight from results/.
+# Reproducibility check: print the headline numbers straight from results/.
 s = summary["prediction"]
-print("H1 — life expectancy level R^2 :  econ-only "
+print("H1, life expectancy level R^2:  econ-only "
       f"{s['life_expectancy']['feature_sets']['Level R2']['Economic only']:.3f}"
       "  ->  full "
       f"{s['life_expectancy']['feature_sets']['Level R2']['Full (econ + health + social)']:.3f}")
-print("H1 — life-ladder   level R^2 :  econ-only "
+print("H1, life-ladder   level R^2:  econ-only "
       f"{s['life_ladder']['feature_sets']['Level R2']['Economic only']:.3f}"
       "  ->  full "
       f"{s['life_ladder']['feature_sets']['Level R2']['Full (econ + health + social)']:.3f}")
 c = summary["clustering"]
-print(f"H2 — clusters k={c['k']}, silhouette={c['silhouette']:.3f}, "
+print(f"H2, clusters k={c['k']}, silhouette={c['silhouette']:.3f}, "
       f"bootstrap ARI={c['stability_ari_mean']:.3f}")
+""")
+
+# =========================================================================== #
+# 7. References
+# =========================================================================== #
+md(r"""
+## 7. References
+
+Data sources and software used in this project.
+
+1. World Bank. *World Development Indicators*. Accessed through the `wbgapi`
+   Python client. https://data.worldbank.org
+2. Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., et al. *World
+   Happiness Report*, Data for Table 2.1, based on the Gallup World Poll.
+   https://worldhappiness.report
+3. Preston, S. H. (1975). The changing relation between mortality and level of
+   economic development. *Population Studies*, 29(2), 231-248.
+4. Lundberg, S. M., and Lee, S.-I. (2017). A unified approach to interpreting
+   model predictions. *Advances in Neural Information Processing Systems*, 30.
+5. Chen, T., and Guestrin, C. (2016). XGBoost: A scalable tree boosting system.
+   *Proceedings of the 22nd ACM SIGKDD Conference*, 785-794.
+6. Pedregosa, F., et al. (2011). Scikit-learn: Machine learning in Python.
+   *Journal of Machine Learning Research*, 12, 2825-2830.
 """)
 
 # =========================================================================== #
@@ -610,4 +636,3 @@ OUT = "MSE446_Project_Report.ipynb"
 with open(OUT, "w", encoding="utf-8") as f:
     nbf.write(nb, f)
 print(f"wrote {OUT} with {len(cells)} cells")
-
